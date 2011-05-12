@@ -18,17 +18,27 @@ namespace BarcodeScannerRx
                 .Subscribe(WriteOutput);
 
             Console.ReadLine();
-            Console.WriteLine("Delay in sequence test");
+            Console.WriteLine("Type characters to process, press enter when you are done.");
 
-            var firstPart = testInput.Substring(0, 8).ToObservable(Scheduler.TaskPool);
-            var secondPart = testInput.Substring(8).ToObservable(Scheduler.TaskPool).Delay(TimeSpan.FromSeconds(6));
+            var userInput = new Subject<char>();
 
-            firstPart
-                .Concat(secondPart)
+            userInput
+                .ObserveOn(Scheduler.TaskPool)
                 .ToBarcodeReadings()
                 .Subscribe(WriteOutput);
 
-            Console.ReadLine();
+            while(true)
+            {
+                var key = Console.ReadKey();
+
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    userInput.OnCompleted();
+                    break;
+                }
+
+                userInput.OnNext(key.KeyChar);
+            }
         }
 
         static IObservable<string> ToBarcodeReadings(this IObservable<char> input)
@@ -56,7 +66,7 @@ namespace BarcodeScannerRx
 
         static void WriteOutput(string output)
         {
-            Console.WriteLine("Reading: {0}", output == string.Empty ? "string.Empty" : output);
+            Console.WriteLine("\nReading: {0}", output == string.Empty ? "string.Empty" : output);
         }
     }
 }
