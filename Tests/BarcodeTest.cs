@@ -41,7 +41,7 @@ namespace BarcodeScannerRx.Tests
 
         public Subscription Subscribe(long start)
         {
-            return new Subscription(start);
+            return new Subscription(start, 1000);
         }     
     }
 }
