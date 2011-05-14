@@ -88,5 +88,25 @@ namespace BarcodeScannerRx.Tests
                 Subscribe(200, 300)
             );
         }
+
+        [TestMethod]
+        public void InputSequenceHasEndButNoStartMarker()
+        {
+            var scheduler = new TestScheduler();
+            var inputSequence = scheduler.CreateHotObservable(
+                OnNextForAll(250, "HowAreYouToday?$xyz"),
+                OnCompleted<char>(300)
+                );
+
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings());
+
+            results.AssertEqual(
+                OnCompleted<string>(300)
+                );
+
+            inputSequence.Subscriptions.AssertEqual(
+                Subscribe(200, 300)
+                );
+        }
     }
 }
