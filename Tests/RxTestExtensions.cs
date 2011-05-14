@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Testing;
 using System.Concurrency;
+using System.Reactive.Testing.Mocks;
 
 namespace BarcodeScannerRx.Tests
 {
     public static class RxTestExtensions
     {
-        public static IObservable<T> CreateHotObservable<T>(this TestScheduler scheduler, params IEnumerable<Recorded<Notification<T>>>[] messageSequences)
+        public static HotObservable<T> CreateHotObservable<T>(this TestScheduler scheduler, params IEnumerable<Recorded<Notification<T>>>[] messageSequences)
         {
             var allMessages = from messageSequence in messageSequences
                               from m in messageSequence
