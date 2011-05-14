@@ -8,6 +8,8 @@ namespace BarcodeScannerRx
 {
     static class Program
     {
+        private static readonly ISubject<char> UserInput = new Subject<char>();
+
         static void Main(string[] args)
         {
             const string testInput = "^^123^6534345$$^^$^^^345345^23423$";
@@ -20,26 +22,28 @@ namespace BarcodeScannerRx
             Console.ReadLine();
             Console.WriteLine("Type characters to process, press enter when you are done.");
 
-            var userInput = new Subject<char>();
-
-            userInput
-                .ObserveOn(Scheduler.TaskPool)
+            UserInput
                 .ToBarcodeReadings()
                 .Subscribe(WriteOutput);
 
+            PumpUserInput();
+        }
+
+        private static void PumpUserInput()
+        {
             while(true)
             {
                 var key = Console.ReadKey();
 
                 if (key.Key == ConsoleKey.Enter)
                 {
-                    userInput.OnCompleted();
+                    UserInput.OnCompleted();
                     break;
                 }
 
-                userInput.OnNext(key.KeyChar);
+                UserInput.OnNext(key.KeyChar);
             }
-        }        
+        }
 
         static void WriteOutput(string output)
         {
