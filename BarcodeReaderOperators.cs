@@ -21,6 +21,7 @@ namespace BarcodeScannerRx
                            select input
                                .TakeUntil(sequenceEnds)
                                .Aggregate("", (c1, c2) => c1 + c2)
+                               .Zip(sequenceEnds, (v, _) => v)      // Fix result being delivered when sequence completes before sequenceEnds
                                .TakeUntil(timeOut); // I don't use TimeOut because I don't want the TimeoutException
 
             // Switch turns an IObservable<IObservable<T>> into IObservable<T> always taking from the last IObservable<T> that was pushed through.
