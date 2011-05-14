@@ -10,48 +10,28 @@ namespace BarcodeScannerRx.Tests
 {    
     public abstract class BarcodeTest
     {
-        protected TestScheduler Scheduler { get; private set; }
-        public HotObservable<char> InputSequence { get; private set; }
-        public IEnumerable<Recorded<Notification<string>>> Results { get; private set; }
-
-        protected abstract IEnumerable<IEnumerable<Recorded<Notification<char>>>> Given();
-
-        protected abstract IEnumerable<Recorded<Notification<string>>> ExpectedOutput();
-
-        [TestInitialize]
-        public void When()
+        public IEnumerable<Recorded<Notification<T>>> OnNextForAll<T>(long ticks, IEnumerable<T> values)
         {
-            Scheduler = new TestScheduler();
-
-            var messages = from mSequence in Given()
-                           from m in mSequence
-                           select m;
-
-            InputSequence = Scheduler.CreateHotObservable(messages.ToArray());
-
-            Results = Scheduler.Run(() => InputSequence.ToBarcodeReadings());
+            return values.Select(x => new Recorded<Notification<T>>(ticks, new Notification<T>.OnNext(x)));
         }
 
-        [TestMethod]
-        public void OutputIsAsExpected()
+        public IEnumerable<Recorded<Notification<T>>> OnNext<T>(long ticks, T value)
         {
-            Results.AssertEqual(ExpectedOutput());
+            var onNext = new Recorded<Notification<T>>(ticks, new Notification<T>.OnNext(value));
+            return EnumerableEx.Return(onNext);
         }
 
-        public Recorded<Notification<T>> OnNext<T>(long ticks, T value)
+        public IEnumerable<Recorded<Notification<T>>> OnCompleted<T>(long ticks)
         {
-            return new Recorded<Notification<T>>(ticks, new Notification<T>.OnNext(value));
+            var onCompleted = new Recorded<Notification<T>>(ticks, new Notification<T>.OnCompleted());
+            return EnumerableEx.Return(onCompleted);
         }
 
-        public Recorded<Notification<T>> OnCompleted<T>(long ticks)
+        public IEnumerable<Recorded<Notification<T>>> OnError<T>(long ticks, Exception exception)
         {
-            return new Recorded<Notification<T>>(ticks, new Notification<T>.OnCompleted());
-        }
-
-        public Recorded<Notification<T>> OnError<T>(long ticks, Exception exception)
-        {
-            return new Recorded<Notification<T>>(ticks,
-                                                 new Notification<T>.OnError(exception));
+            var onError = new Recorded<Notification<T>>(ticks,
+                                                        new Notification<T>.OnError(exception));
+            return EnumerableEx.Return(onError);
         }
 
         public Subscription Subscribe(long start, long end)

@@ -11,28 +11,29 @@ namespace BarcodeScannerRx.Tests
     {
         public static HotObservable<T> CreateHotObservable<T>(this TestScheduler scheduler, params IEnumerable<Recorded<Notification<T>>>[] messageSequences)
         {
-            var allMessages = from messageSequence in messageSequences
-                              from m in messageSequence
-                              select m;
-
             // We have to explicitly say we want to use the TestSchedulerExtensions.CreateHotObservable method
             // so that end up calling back into ourselves and then stack overflow
-            return TestSchedulerExtensions.CreateHotObservable(scheduler, allMessages.ToArray());
+            return TestSchedulerExtensions.CreateHotObservable(scheduler, messageSequences.Concat().ToArray());
         }
 
-        public static IEnumerable<Recorded<Notification<T>>> ToRecordedNotifications<T>(this IEnumerable<T> messages)
+        public static Recorded<T> RecordedAt<T>(this T value, long ticks)
         {
-            return messages.Select(m => new Recorded<Notification<T>>(0, new Notification<T>.OnNext(m)));
+            return new Recorded<T>(ticks, value);
         }
 
-        public static IEnumerable<Recorded<Notification<T>>> TimeBetween<T>(this IEnumerable<Recorded<Notification<T>>> recordings, long timeBetween)
+        public static IEnumerable<Recorded<T>> RecordAllAt<T>(this IEnumerable<T> messages, long ticks)
         {
-            return recordings.Select((r, i) => new Recorded<Notification<T>>(r.Time + timeBetween * i, r.Value));
+            return messages.Select(m => new Recorded<T>(ticks, m));
         }
 
-        public static IEnumerable<Recorded<Notification<T>>> StartingAt<T>(this IEnumerable<Recorded<Notification<T>>> originalRecording, long sequenceStartTicks)
+        public static IEnumerable<Recorded<T>> TimeBetween<T>(this IEnumerable<Recorded<T>> recordings, long timeBetween)
         {
-            return originalRecording.Select(recording => new Recorded<Notification<T>>(recording.Time + sequenceStartTicks, recording.Value));
+            return recordings.Select((r, i) => new Recorded<T>(r.Time + timeBetween * i, r.Value));
+        }
+
+        public static IEnumerable<Recorded<T>> StartingAt<T>(this IEnumerable<Recorded<T>> originalRecording, long sequenceStartTicks)
+        {
+            return originalRecording.Select(recording => new Recorded<T>(recording.Time + sequenceStartTicks, recording.Value));
         }
     }
 }
