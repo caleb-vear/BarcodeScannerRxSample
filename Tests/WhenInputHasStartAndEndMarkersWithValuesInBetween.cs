@@ -14,7 +14,7 @@ namespace BarcodeScannerRx.Tests
             var scheduler = new TestScheduler();
 
             var inputSequence = scheduler.CreateHotObservable(
-                Input("^hello$", 0).StartingAt(250).ToArray()
+                    "^hello$".ToRecordedNotifications().StartingAt(250)
                 );
 
             var barcodeReadings = inputSequence.ToBarcodeReadings();
@@ -24,16 +24,6 @@ namespace BarcodeScannerRx.Tests
             results.AssertEqual(
                 OnNext(250, "hello")
                 );
-        }
-
-        public IEnumerable<Recorded<Notification<T>>> Input<T>(IEnumerable<T> input, long ticksBetween)
-        {
-            long ticks = 0;
-            foreach (var x in input)
-            {
-                yield return OnNext(ticks, x);
-                ticks += ticksBetween;
-            }
         }
     }
 }
