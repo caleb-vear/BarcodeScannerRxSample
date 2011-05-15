@@ -151,5 +151,31 @@ namespace BarcodeScannerRx.Tests
                 Subscribe(200,300)
                 );
         }
+
+        [TestMethod]
+        public void InputHasMultipleBarcodeSequencesAndFalseStartsAndEnds()
+        {
+            var scheduler = new TestScheduler();
+            var inputSequence = scheduler.CreateHotObservable(
+                OnNextForAll(250, "a$bc^^123^653"),
+                OnNextForAll(260, "4345$$^^"),
+                OnNextForAll(270, "$^^^345345"),
+                OnNextForAll(280, "^23423$def^bah"),
+                OnCompleted<char>(300)
+                );
+
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings());
+
+            results.AssertEqual(EnumerableEx.Concat(
+                OnNext(260, "6534345"),
+                OnNext(270, string.Empty),
+                OnNext(280, "23423"),
+                OnCompleted<string>(300)
+                ));
+
+            inputSequence.Subscriptions.AssertEqual(
+                Subscribe(200,300)
+                );
+        }
     }
 }
