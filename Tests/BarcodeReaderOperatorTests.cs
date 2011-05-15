@@ -184,21 +184,25 @@ namespace BarcodeScannerRx.Tests
         {
             var scheduler = new TestScheduler();
             var inputSequence = scheduler.CreateHotObservable(
-                OnNextForAll(0.1.Seconds(), "a^hello"),
-                OnNextForAll(5.2.Seconds(), "world$"),
-                OnNextForAll(6.0.Seconds(), "^Rx$"),
-                OnCompleted<char>(6.5.Seconds())
+                OnNextForAll(1.0.Seconds(), "a^hello"),
+                OnNextForAll(6.1.Seconds(), "world$"),
+                OnNextForAll(7.0.Seconds(), "^Rx$"),
+                OnCompleted<char>(7.5.Seconds())
                 );
 
-            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, 10.Seconds().Ticks);
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 
+                0.0.Seconds().Ticks, 
+                0.5.Seconds().Ticks, 
+                10.Seconds().Ticks
+                );
 
             results.AssertEqual(EnumerableEx.Concat(
-                OnNext(6.Seconds(), "Rx"),
-                OnCompleted<string>(6.5.Seconds())
+                OnNext(7.Seconds(), "Rx"),
+                OnCompleted<string>(7.5.Seconds())
                 ));
 
             inputSequence.Subscriptions.AssertEqual(
-                Subscribe(0.Seconds(), 6.5.Seconds())
+                Subscribe(0.5.Seconds(), 7.5.Seconds())
                 );
         }
 
@@ -213,7 +217,11 @@ namespace BarcodeScannerRx.Tests
                 OnCompleted<char>(7.5.Seconds())
                 );
 
-            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, 10.Seconds().Ticks);
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 
+                0.0.Seconds().Ticks, 
+                0.5.Seconds().Ticks, 
+                10.Seconds().Ticks
+                );
 
             results.AssertEqual(EnumerableEx.Concat(
                 OnNext(6.Seconds(), "helloworld"),
@@ -222,7 +230,7 @@ namespace BarcodeScannerRx.Tests
                 ));
 
             inputSequence.Subscriptions.AssertEqual(
-                Subscribe(0.Seconds(), 7.5.Seconds())
+                Subscribe(0.5.Seconds(), 7.5.Seconds())
                 );            
         }        
     }
