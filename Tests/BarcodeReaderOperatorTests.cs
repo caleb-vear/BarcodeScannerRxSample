@@ -108,5 +108,27 @@ namespace BarcodeScannerRx.Tests
                 Subscribe(200, 300)
                 );
         }
+
+        [TestMethod]
+        public void InputHasMultipleEndMarkersBeforeTheSecondSequenceBegins()
+        {
+            var scheduler = new TestScheduler();
+            var inputSequence = scheduler.CreateHotObservable(
+                OnNextForAll(250, "someText^abcd$efg$1337^rofl$lmnop"),
+                OnCompleted<char>(300)
+                );
+
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings());
+
+            results.AssertEqual(EnumerableEx.Concat(
+                OnNext(250, "abcd"),
+                OnNext(250, "rofl"),
+                OnCompleted<string>(300)
+                ));
+
+            inputSequence.Subscriptions.AssertEqual(
+                Subscribe(200,300)
+                );
+        }
     }
 }
