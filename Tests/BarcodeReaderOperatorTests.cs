@@ -130,5 +130,26 @@ namespace BarcodeScannerRx.Tests
                 Subscribe(200,300)
                 );
         }
+        
+        [TestMethod]
+        public void InputHasNoCharactersBetweenStartAndEndMarkers()
+        {
+            var scheduler = new TestScheduler();
+            var inputSequence = scheduler.CreateHotObservable(
+                OnNextForAll(250, "abcd^$efg"),
+                OnCompleted<char>(300)
+                );
+
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings());
+
+            results.AssertEqual(EnumerableEx.Concat(
+                OnNext(250, string.Empty),
+                OnCompleted<string>(300)
+                ));
+
+            inputSequence.Subscriptions.AssertEqual(
+                Subscribe(200,300)
+                );
+        }
     }
 }
