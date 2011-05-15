@@ -1,4 +1,5 @@
 using System;
+using System.Concurrency;
 using System.Linq;
 
 namespace BarcodeScannerRx
@@ -7,11 +8,16 @@ namespace BarcodeScannerRx
     {
         public static IObservable<string> ToBarcodeReadings(this IObservable<char> input)
         {
+            return input.ToBarcodeReadings(Scheduler.ThreadPool);
+        }
+
+        public static IObservable<string> ToBarcodeReadings(this IObservable<char> input, IScheduler timeoutScheduler)
+        {
             input = input
                 .Publish() // My test uses a cold observable so multiple subscriptions get the full sequence, publish fixes that.
                 .RefCount(); // Ref cound means that once we have no more subscribers kill the subscription to the base input.
 
-            var timeOut = input.Select(_ => Observable.Interval(TimeSpan.FromSeconds(5)))
+            var timeOut = input.Select(_ => Observable.Interval(TimeSpan.FromSeconds(5), timeoutScheduler))
                 .Switch();
 
             var sequenceStarts = input.Where(c => c == '^');

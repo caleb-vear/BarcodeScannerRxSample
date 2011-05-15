@@ -3,6 +3,7 @@ using System.Concurrency;
 using System.Linq;
 using System.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace BarcodeScannerRx.Tests
 {
@@ -175,6 +176,29 @@ namespace BarcodeScannerRx.Tests
 
             inputSequence.Subscriptions.AssertEqual(
                 Subscribe(200,300)
+                );
+        }
+
+        [TestMethod]
+        public void InputHasADelayBetweenCharactersOfLongerThanFiveSecondsDuringSequence()
+        {
+            var scheduler = new TestScheduler();
+            var inputSequence = scheduler.CreateHotObservable(
+                OnNextForAll(TimeSpan.FromSeconds(0.1).Ticks, "a^hello"),
+                OnNextForAll(TimeSpan.FromSeconds(5.2).Ticks, "world$"),
+                OnNextForAll(TimeSpan.FromSeconds(6).Ticks, "^Rx$"),
+                OnCompleted<char>(TimeSpan.FromSeconds(6.5).Ticks)
+                );
+
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, TimeSpan.FromSeconds(10).Ticks);
+
+            results.AssertEqual(EnumerableEx.Concat(
+                OnNext(TimeSpan.FromSeconds(6).Ticks, "Rx"),
+                OnCompleted<string>(TimeSpan.FromSeconds(6.5).Ticks)
+                ));
+
+            inputSequence.Subscriptions.AssertEqual(
+                Subscribe(TimeSpan.Zero.Ticks, TimeSpan.FromSeconds(6.5).Ticks)
                 );
         }
     }
