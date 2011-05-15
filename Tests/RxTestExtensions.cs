@@ -26,9 +26,9 @@ namespace BarcodeScannerRx.Tests
             return messages.Select(m => new Recorded<T>(ticks, m));
         }
 
-        public static IEnumerable<Recorded<T>> TimeBetween<T>(this IEnumerable<Recorded<T>> recordings, long timeBetween)
+        public static IEnumerable<Recorded<T>> TimeBetweenEach<T>(this IEnumerable<Recorded<T>> recordings, TimeSpan timeBetween)
         {
-            return recordings.Select((r, i) => new Recorded<T>(r.Time + timeBetween * i, r.Value));
+            return recordings.Select((r, i) => new Recorded<T>(r.Time + timeBetween.Ticks * i, r.Value));
         }
 
         public static IEnumerable<Recorded<T>> StartingAt<T>(this IEnumerable<Recorded<T>> originalRecording, long sequenceStartTicks)
