@@ -74,6 +74,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BarcodeReaderOperators.cs" />
+    <Compile Include="ExtendDouble.cs" />
+    <Compile Include="ExtendInt32.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\BarcodeReaderOperatorTests.cs" />

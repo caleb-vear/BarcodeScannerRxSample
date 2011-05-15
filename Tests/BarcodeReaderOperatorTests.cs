@@ -184,21 +184,21 @@ namespace BarcodeScannerRx.Tests
         {
             var scheduler = new TestScheduler();
             var inputSequence = scheduler.CreateHotObservable(
-                OnNextForAll(TimeSpan.FromSeconds(0.1).Ticks, "a^hello"),
-                OnNextForAll(TimeSpan.FromSeconds(5.2).Ticks, "world$"),
-                OnNextForAll(TimeSpan.FromSeconds(6).Ticks, "^Rx$"),
-                OnCompleted<char>(TimeSpan.FromSeconds(6.5).Ticks)
+                OnNextForAll(0.1.Seconds(), "a^hello"),
+                OnNextForAll(5.2.Seconds(), "world$"),
+                OnNextForAll(6.0.Seconds(), "^Rx$"),
+                OnCompleted<char>(6.5.Seconds())
                 );
 
-            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, TimeSpan.FromSeconds(10).Ticks);
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, 10.Seconds().Ticks);
 
             results.AssertEqual(EnumerableEx.Concat(
-                OnNext(TimeSpan.FromSeconds(6).Ticks, "Rx"),
-                OnCompleted<string>(TimeSpan.FromSeconds(6.5).Ticks)
+                OnNext(6.Seconds(), "Rx"),
+                OnCompleted<string>(6.5.Seconds())
                 ));
 
             inputSequence.Subscriptions.AssertEqual(
-                Subscribe(TimeSpan.Zero.Ticks, TimeSpan.FromSeconds(6.5).Ticks)
+                Subscribe(0.Seconds(), 6.5.Seconds())
                 );
         }
 
@@ -207,21 +207,21 @@ namespace BarcodeScannerRx.Tests
         {
             var scheduler = new TestScheduler();
             var inputSequence = scheduler.CreateHotObservable(
-                OnNextForAll(TimeSpan.FromSeconds(0).Ticks, "a^hello"),
-                OnNextForAll(TimeSpan.FromSeconds(5).Ticks, "world$"),
-                OnNextForAll(TimeSpan.FromSeconds(6).Ticks, "^Rx$"),
-                OnCompleted<char>(TimeSpan.FromSeconds(6.5).Ticks)
+                OnNextForAll(0.Seconds(), "a^hello"),
+                OnNextForAll(5.Seconds(), "world$"),
+                OnNextForAll(6.Seconds(), "^Rx$"),
+                OnCompleted<char>(6.5.Seconds())
                 );
 
-            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, TimeSpan.FromSeconds(10).Ticks);
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, 10.Seconds().Ticks);
 
             results.AssertEqual(EnumerableEx.Concat(
-                OnNext(TimeSpan.FromSeconds(6).Ticks, "Rx"),
-                OnCompleted<string>(TimeSpan.FromSeconds(6.5).Ticks)
+                OnNext(6.Seconds(), "Rx"),
+                OnCompleted<string>(6.5.Seconds())
                 ));
 
             inputSequence.Subscriptions.AssertEqual(
-                Subscribe(TimeSpan.Zero.Ticks, TimeSpan.FromSeconds(6.5).Ticks)
+                Subscribe(0.Seconds(), 6.5.Seconds())
                 );            
         }
     }

@@ -17,7 +17,7 @@ namespace BarcodeScannerRx
                 .Publish() // My test uses a cold observable so multiple subscriptions get the full sequence, publish fixes that.
                 .RefCount(); // Ref cound means that once we have no more subscribers kill the subscription to the base input.
 
-            var timeOut = input.Select(_ => Observable.Interval(TimeSpan.FromSeconds(5), timeoutScheduler))
+            var timeOut = input.Select(_ => Observable.Interval(5.Seconds(), timeoutScheduler))
                 .Switch();
 
             var sequenceStarts = input.Where(c => c == '^');
