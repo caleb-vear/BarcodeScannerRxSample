@@ -207,31 +207,8 @@ namespace BarcodeScannerRx.Tests
         {
             var scheduler = new TestScheduler();
             var inputSequence = scheduler.CreateHotObservable(
-                OnNextForAll(0.Seconds(), "a^hello"),
-                OnNextForAll(5.Seconds(), "world$"),
-                OnNextForAll(6.Seconds(), "^Rx$"),
-                OnCompleted<char>(6.5.Seconds())
-                );
-
-            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, 10.Seconds().Ticks);
-
-            results.AssertEqual(EnumerableEx.Concat(
-                OnNext(6.Seconds(), "Rx"),
-                OnCompleted<string>(6.5.Seconds())
-                ));
-
-            inputSequence.Subscriptions.AssertEqual(
-                Subscribe(0.Seconds(), 6.5.Seconds())
-                );            
-        }
-
-        [TestMethod]
-        public void InputHasADelayBetweenCharactersOfJustUnderFiveSecondsDuringSequence()
-        {
-            var scheduler = new TestScheduler();
-            var inputSequence = scheduler.CreateHotObservable(
-                OnNextForAll(1.0.Seconds(), "a^hello"),
-                OnNextForAll(5.9.Seconds(), "world$"),
+                OnNextForAll(1.Seconds(), "a^hello"),
+                OnNextForAll(6.Seconds(), "world$"),
                 OnNextForAll(7.Seconds(), "^Rx$"),
                 OnCompleted<char>(7.5.Seconds())
                 );
@@ -239,14 +216,14 @@ namespace BarcodeScannerRx.Tests
             var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler), 0, 0, 10.Seconds().Ticks);
 
             results.AssertEqual(EnumerableEx.Concat(
-                OnNext(5.9.Seconds(), "helloworld"),
+                OnNext(6.Seconds(), "helloworld"),
                 OnNext(7.Seconds(), "Rx"),
                 OnCompleted<string>(7.5.Seconds())
                 ));
 
             inputSequence.Subscriptions.AssertEqual(
                 Subscribe(0.Seconds(), 7.5.Seconds())
-                );                      
-        }
+                );            
+        }        
     }
 }
