@@ -8,7 +8,7 @@ using System;
 namespace BarcodeScannerRx.Tests
 {
     [TestClass]
-    public class BarcodeReaderOperatorTests : BarcodeTest
+    public class BarcodeReaderOperatorTests : RxTest
     {
         [TestMethod]
         public void InputHasStartAndEndMarkersWithValuesInBetween()
