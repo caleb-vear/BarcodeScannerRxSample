@@ -258,5 +258,29 @@ namespace BarcodeScannerRx.Tests
                 Subscribe(0.5.Seconds(), 100.Seconds())
                 );            
         }
+
+        [TestMethod]
+        public void InputHasADelayBetweenEachCharacterOfJustOverFiveSecondsDuringSequence()
+        {
+            var scheduler = new TestScheduler();
+            var inputSequence = scheduler.CreateHotObservable(
+                OnNextForAll(1.Seconds(), "a^helloworld$bc").TimeBetweenEach(5.01.Seconds()),
+                OnCompleted<char>(100.Seconds())
+                );
+
+            var results = scheduler.Run(() => inputSequence.ToBarcodeReadings(scheduler),
+                0.0.Seconds().Ticks,
+                0.5.Seconds().Ticks,
+                100.Seconds().Ticks
+                );
+
+            results.AssertEqual(EnumerableEx.Concat(
+                OnCompleted<string>(100.Seconds())
+                ));
+
+            inputSequence.Subscriptions.AssertEqual(
+                Subscribe(0.5.Seconds(), 100.Seconds())
+                );
+        }
     }
 }
