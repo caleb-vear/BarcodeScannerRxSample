@@ -12,15 +12,8 @@ namespace BarcodeScannerRx
 
         static void Main(string[] args)
         {
-            const string testInput = "^^123^6534345$$^^$^^^345345^23423$";
-
-            Console.WriteLine("Initial Test, no delay");
-            testInput.ToObservable(Scheduler.TaskPool)
-                .ToBarcodeReadings()
-                .Subscribe(WriteOutput);
-
-            Console.ReadLine();
-            Console.WriteLine("Type characters to process, press enter when you are done.");
+            Console.WriteLine("Barcode reader test:");
+            Console.WriteLine("Type characters to process, press enter when you are done.\n");
 
             UserInput
                 .ToBarcodeReadings()
@@ -47,7 +40,7 @@ namespace BarcodeScannerRx
 
         static void WriteOutput(string output)
         {
-            Console.WriteLine("\nReading: {0}", output == string.Empty ? "string.Empty" : output);
+            Console.WriteLine("\nReading: {0}\n", output == string.Empty ? "string.Empty" : output);
         }
     }
 }
